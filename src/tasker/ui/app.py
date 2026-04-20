@@ -128,7 +128,7 @@ class TaskerApp(App[None]):
         if not tasks:
             self._current_task = None
             self._primary_ref = None
-            detail.update("No tasks yet. Use `tasker ingest` to add one.", markup=False)
+            detail.update("No tasks yet. Use `tasker ingest` to add one.")
             return
         table.cursor_coordinate = Coordinate(0, 0)
         first = tasks[0]
@@ -145,7 +145,6 @@ class TaskerApp(App[None]):
             self._primary_ref = None
             self.query_one("#detail-body", Static).update(
                 f"Task {task_id} was removed.",
-                markup=False,
             )
             return
         refs = self._refs_repo.list_for_task(task_id)
@@ -180,7 +179,7 @@ class TaskerApp(App[None]):
         else:
             lines.append("")
             lines.append("No linked message for this task.")
-        self.query_one("#detail-body", Static).update("\n".join(lines), markup=False)
+        self.query_one("#detail-body", Static).update("\n".join(lines))
 
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         key = event.row_key.value
