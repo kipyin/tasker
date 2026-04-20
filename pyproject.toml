@@ -1,0 +1,43 @@
+[project]
+name = "tasker"
+# CalVer: YYYY.MM.MICRO (year, month, release counter within that month).
+version = "2026.4.0"
+description = "Add your description here"
+authors = [
+    { name = "Kip", email = "28321392+kipyin@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "extract-msg>=0.55.0",
+    "httpx>=0.28.0",
+    "questionary>=2.1.0",
+    "rich>=15.0.0",
+    "sqlmodel>=0.0.27",
+    "textual>=8.2.4",
+    "tomli-w>=1.0.0",
+    "typer>=0.24.1",
+]
+
+[project.scripts]
+tasker = "tasker.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.4,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.15.11",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
