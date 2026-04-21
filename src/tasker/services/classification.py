@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections.abc import Callable
 from typing import Any
@@ -146,16 +145,12 @@ def request_classification_proposal(
 
 
 def resolve_api_key(config: AppConfig) -> str:
-    """Read the API key from the environment variable named in config."""
-    name = config.ai.api_key_env.strip()
-    if not name:
-        msg = "Config ai.api_key_env is empty."
-        raise ClassificationError(msg)
-    value = os.environ.get(name, "").strip()
+    """Read the API key from persisted AI config."""
+    value = config.ai.api_key.strip()
     if not value:
         msg = (
-            f"Environment variable {name!r} is not set or empty; "
-            "set it to your API key for the configured AI endpoint."
+            "Config ai.api_key is empty; set it under Configuration in the app "
+            "or run `tasker setup`."
         )
         raise ClassificationError(msg)
     return value
@@ -211,13 +206,16 @@ def load_task_primary_ref(
     refs: MessageRefRepository,
     task_id: int,
 ) -> tuple[Task, MessageRef]:
-    """Return the task and its first linked `.msg` reference."""
+    """Return the task and its first linked message reference."""
     task = tasks.get(task_id)
     if task is None:
         msg = f"Task {task_id} not found."
         raise ClassificationError(msg)
     ref_list = refs.list_for_task(task_id)
     if not ref_list:
-        msg = f"Task {task_id} has no linked .msg; run `tasker ingest` first."
+        msg = (
+            f"Task {task_id} has no linked message; run `tasker mail ingest` "
+            "or `tasker mail ingest-outlook` first."
+        )
         raise ClassificationError(msg)
     return task, ref_list[0]
