@@ -18,6 +18,8 @@ def test_cli_help_smoke() -> None:
     r = runner.invoke(typer_app, ["--help"])
     assert r.exit_code == 0
     assert "Tasker" in r.stdout
+    assert "task" in r.stdout.lower()
+    assert "mail" in r.stdout.lower()
 
 
 def test_tui_headless_mount_smoke(
@@ -33,7 +35,7 @@ def test_tui_headless_mount_smoke(
         try:
             tui = TaskerApp(config=config, engine=engine)
             async with tui.run_test() as pilot:
-                await pilot.pause()
+                await asyncio.sleep(0.05)
                 assert pilot.app.query_one("#detail-body") is not None
         finally:
             engine.dispose()

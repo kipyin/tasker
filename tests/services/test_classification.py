@@ -28,7 +28,7 @@ def _sample_config() -> AppConfig:
         ai=AIConfig(
             base_url="https://example.invalid/v1",
             model="test-model",
-            api_key_env="TASKER_TEST_KEY",
+            api_key="secret",
         ),
         projects=[
             ProjectConfig(id="p1", name="Alpha", root="C:/a"),
@@ -37,16 +37,14 @@ def _sample_config() -> AppConfig:
     )
 
 
-def test_resolve_api_key_missing(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("TASKER_TEST_KEY", raising=False)
+def test_resolve_api_key_missing() -> None:
     cfg = _sample_config()
-    cfg.ai.api_key_env = "TASKER_TEST_KEY"
-    with pytest.raises(ClassificationError, match="not set"):
+    cfg.ai.api_key = ""
+    with pytest.raises(ClassificationError, match="empty"):
         resolve_api_key(cfg)
 
 
-def test_resolve_api_key_ok(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("TASKER_TEST_KEY", "secret")
+def test_resolve_api_key_ok() -> None:
     cfg = _sample_config()
     assert resolve_api_key(cfg) == "secret"
 
@@ -54,7 +52,6 @@ def test_resolve_api_key_ok(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_request_classification_proposal_no_projects(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv("TASKER_TEST_KEY", "x")
     cfg = _sample_config()
     cfg.projects = []
     task = Task(id=1, title="t", status=TaskStatus.PENDING, project_id="")

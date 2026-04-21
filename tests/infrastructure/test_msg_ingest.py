@@ -143,4 +143,6 @@ def test_init_db_migrates_message_refs_columns(tmp_path: Path) -> None:
     col_names = {c["name"] for c in insp.get_columns("message_refs")}
     assert "subject" in col_names
     assert "attachment_names_json" in col_names
+    assert "outlook_entry_id" in col_names
+    assert "outlook_store_id" in col_names
     engine.dispose()

@@ -20,10 +20,8 @@ from tasker.paths import CONFIG_FILENAME, tasker_home
 def test_classify_cli_dry_run_runs_without_questionary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """`classify --dry-run` does not prompt or call the network."""
+    """`mail classify --dry-run` does not prompt or call the network."""
     monkeypatch.setenv("APPDATA", str(tmp_path))
-    monkeypatch.setenv("TASKER_TEST_KEY", "k")
-
     home = tasker_home()
     assert home is not None
     home.mkdir(parents=True, exist_ok=True)
@@ -33,7 +31,7 @@ def test_classify_cli_dry_run_runs_without_questionary(
                 "version = 1",
                 (
                     'ai = { base_url = "https://x/v1", model = "m", '
-                    'api_key_env = "TASKER_TEST_KEY" }'
+                    'api_key = "k" }'
                 ),
                 "[[projects]]",
                 'id = "p1"',
@@ -71,8 +69,8 @@ def test_classify_cli_dry_run_runs_without_questionary(
     ):
         result = runner.invoke(
             app,
-            ["classify", str(tid), "--dry-run"],
-            env={"APPDATA": str(tmp_path), "TASKER_TEST_KEY": "k"},
+            ["mail", "classify", str(tid), "--dry-run"],
+            env={"APPDATA": str(tmp_path)},
         )
 
     assert result.exit_code == 0

@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 import pytest
 from sqlmodel import Session
 
-from tasker.domain.exceptions import RoutingError
+from tasker.domain.exceptions import OutlookCOMError, RoutingError
 from tasker.infrastructure.config.schema import (
     AppConfig,
     BucketConfig,
@@ -211,6 +211,128 @@ def test_route_task_attachments_idempotent_second_run(
             msg_opener=opener,
         )
         assert records2[0].action == "skipped_identical"
+    finally:
+        session.close()
+        engine.dispose()
+
+
+class _FakeAttachments:
+    def __init__(self, items: list[MagicMock]) -> None:
+        self._items = items
+
+    @property
+    def Count(self) -> int:
+        return len(self._items)
+
+    def Item(self, index: int) -> MagicMock:
+        return self._items[index - 1]
+
+
+def _outlook_attachment_mock(name: str, data: bytes) -> MagicMock:
+    att = MagicMock()
+    att.FileName = name
+
+    def save_as(path: str) -> None:
+        Path(path).write_bytes(data)
+
+    att.SaveAsFile = save_as
+    return att
+
+
+def test_route_task_attachments_outlook_com_backend(
+    tmp_path: Path,
+) -> None:
+    db_file = tmp_path / "db.sqlite"
+    engine = make_sqlite_engine(str(db_file))
+    init_db(engine)
+    session = Session(engine)
+    try:
+        root = tmp_path / "proj"
+        (root / "docs").mkdir(parents=True)
+        project = ProjectConfig(
+            id="alpha",
+            name="Alpha",
+            root=str(root),
+            buckets=[BucketConfig(name="docs", relative_path="docs")],
+            rules=[RoutingRuleConfig(bucket="docs", pattern="*.pdf")],
+        )
+        config = AppConfig(projects=[project])
+        tasks = TaskRepository(session)
+        refs = MessageRefRepository(session)
+        task = tasks.create(title="t", project_id="alpha")
+        assert task.id is not None
+        refs.create(
+            task_id=task.id,
+            msg_path="outlook-com:fake-entry",
+            outlook_entry_id="fake-entry",
+            attachment_names_json=json.dumps(["report.pdf"]),
+        )
+
+        att = _outlook_attachment_mock("report.pdf", b"%PDF-1")
+        mail_item = MagicMock()
+        mail_item.Attachments = _FakeAttachments([att])
+
+        def getter(entry_id: str, store_id: str | None) -> MagicMock:
+            assert entry_id == "fake-entry"
+            assert store_id is None
+            return mail_item
+
+        records = route_task_attachments(
+            home=tmp_path / "TaskerHome",
+            config=config,
+            tasks=tasks,
+            refs=refs,
+            task_id=task.id,
+            dry_run=False,
+            outlook_mail_item_getter=getter,
+        )
+        assert (root / "docs" / "report.pdf").read_bytes() == b"%PDF-1"
+        assert records[0].action == "moved"
+    finally:
+        session.close()
+        engine.dispose()
+
+
+def test_route_task_attachments_outlook_getter_com_error(
+    tmp_path: Path,
+) -> None:
+    db_file = tmp_path / "db.sqlite"
+    engine = make_sqlite_engine(str(db_file))
+    init_db(engine)
+    session = Session(engine)
+    try:
+        root = tmp_path / "proj"
+        (root / "docs").mkdir(parents=True)
+        project = ProjectConfig(
+            id="alpha",
+            name="Alpha",
+            root=str(root),
+            buckets=[BucketConfig(name="docs", relative_path="docs")],
+            rules=[RoutingRuleConfig(bucket="docs", pattern="*.pdf")],
+        )
+        config = AppConfig(projects=[project])
+        tasks = TaskRepository(session)
+        refs = MessageRefRepository(session)
+        task = tasks.create(title="t", project_id="alpha")
+        assert task.id is not None
+        refs.create(
+            task_id=task.id,
+            msg_path="outlook-com:x",
+            outlook_entry_id="x",
+        )
+
+        def getter(_eid: str, _sid: str | None) -> MagicMock:
+            raise OutlookCOMError("gone")
+
+        with pytest.raises(RoutingError, match="Outlook"):
+            route_task_attachments(
+                home=tmp_path / "h",
+                config=config,
+                tasks=tasks,
+                refs=refs,
+                task_id=task.id,
+                outlook_mail_item_getter=getter,
+            )
     finally:
         session.close()
         engine.dispose()
