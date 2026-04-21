@@ -24,7 +24,7 @@ def resolve_working_folder(
                 if root.is_dir():
                     return root.resolve()
                 break
-    if ref is not None:
+    if ref is not None and not (ref.outlook_entry_id or "").strip():
         parent = Path(ref.msg_path).expanduser().parent
         if parent.is_dir():
             return parent.resolve()
