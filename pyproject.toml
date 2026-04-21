@@ -18,6 +18,11 @@ dependencies = [
     "typer>=0.24.1",
 ]
 
+[project.optional-dependencies]
+outlook = [
+    "pywin32>=308",
+]
+
 [project.scripts]
 tasker = "tasker.cli:main"
 
