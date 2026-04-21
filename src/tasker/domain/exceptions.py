@@ -17,3 +17,11 @@ class AIClientError(Exception):
 
 class RoutingError(Exception):
     """Attachment routing failed (config, project, or filesystem)."""
+
+
+class OutlookNotAvailableError(Exception):
+    """Outlook COM is unavailable (wrong OS, missing optional dependency, etc.)."""
+
+
+class OutlookCOMError(Exception):
+    """Outlook COM automation failed."""

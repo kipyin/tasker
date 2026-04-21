@@ -18,6 +18,8 @@ class MessageRefRepository:
         *,
         task_id: int,
         msg_path: str,
+        outlook_entry_id: str | None = None,
+        outlook_store_id: str | None = None,
         subject: str | None = None,
         sender: str | None = None,
         recipients_to: str | None = None,
@@ -29,6 +31,8 @@ class MessageRefRepository:
         row = MessageRef(
             task_id=task_id,
             msg_path=msg_path,
+            outlook_entry_id=outlook_entry_id,
+            outlook_store_id=outlook_store_id,
             subject=subject,
             sender=sender,
             recipients_to=recipients_to,

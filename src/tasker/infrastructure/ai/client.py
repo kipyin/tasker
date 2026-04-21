@@ -18,6 +18,7 @@ def chat_completion_content(
     system_message: str,
     user_message: str,
     timeout_seconds: float = 120.0,
+    max_tokens: int | None = None,
 ) -> str:
     """
     POST to `{base_url}/chat/completions` and return the first message content string.
@@ -34,6 +35,8 @@ def chat_completion_content(
         ],
         "temperature": 0.2,
     }
+    if max_tokens is not None:
+        payload["max_tokens"] = max_tokens
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",

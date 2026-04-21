@@ -29,6 +29,8 @@ def _migrate_sqlite_schema(engine: Engine) -> None:
             ("recipients_bcc", "TEXT"),
             ("body_text", "TEXT"),
             ("attachment_names_json", "TEXT"),
+            ("outlook_entry_id", "TEXT"),
+            ("outlook_store_id", "TEXT"),
         ]
         with engine.begin() as conn:
             for col_name, sql_type in additions:

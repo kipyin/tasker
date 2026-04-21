@@ -27,13 +27,15 @@ class Task(SQLModel, table=True):
 
 
 class MessageRef(SQLModel, table=True):
-    """Pointer to a `.msg` on disk for a task, plus parsed snapshot fields."""
+    """Pointer to a `.msg` on disk or live Outlook item, plus parsed snapshot fields."""
 
     __tablename__ = "message_refs"
 
     id: int | None = Field(default=None, primary_key=True)
     task_id: int = Field(foreign_key="tasks.id", nullable=False)
     msg_path: str
+    outlook_entry_id: str | None = None
+    outlook_store_id: str | None = None
     subject: str | None = None
     sender: str | None = None
     recipients_to: str | None = None

@@ -8,11 +8,11 @@ CONFIG_FORMAT_VERSION = 1
 
 
 class AIConfig(BaseModel):
-    """BYOK / OpenAI-compatible API settings."""
+    """OpenAI-compatible API settings (key lives beside the rest of the user config)."""
 
     base_url: str = "https://api.openai.com/v1"
     model: str = "gpt-4o-mini"
-    api_key_env: str = "OPENAI_API_KEY"
+    api_key: str = ""
 
 
 class BucketConfig(BaseModel):
