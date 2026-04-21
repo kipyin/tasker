@@ -1,4 +1,4 @@
-"""`tasker classify` command."""
+"""`tasker mail classify` command."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from tasker.services.classification import (
 def classify_task(
     task_id: Annotated[
         int,
-        typer.Argument(help="Pending task id from `tasker ingest`."),
+        typer.Argument(help="Pending task id from `tasker mail ingest`."),
     ],
     dry_run: Annotated[
         bool,
@@ -45,7 +45,8 @@ def classify_task(
     """
     Propose a project via the configured BYOK model; confirm before any DB update.
 
-    Requires a linked `.msg` (from `tasker ingest`) and at least one project in config.
+    Requires a linked message (from `tasker mail ingest` or
+    `tasker mail ingest-outlook`) and at least one project in config.
     """
     try:
         _, config, engine = prepare_local_storage()

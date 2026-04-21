@@ -1,4 +1,4 @@
-"""Task CRUD commands: add, view, edit, remove."""
+"""Task CRUD commands: list, show, add, edit, delete."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def add(
         typer.Option("--notes", help="Optional notes."),
     ] = None,
 ) -> None:
-    """Create a task row (no `.msg` link; use `tasker ingest` for email)."""
+    """Create a task row (no `.msg` link; use `tasker mail ingest` for email)."""
     st = parse_task_status(status)
     try:
         _, _, engine = prepare_local_storage()
@@ -75,13 +75,47 @@ def add(
     )
 
 
-def view(
-    task_id: Annotated[
-        int | None,
-        typer.Argument(help="Task id; omit to list all tasks."),
-    ] = None,
+def list_tasks() -> None:
+    """List all tasks (summary table)."""
+    try:
+        _, _, engine = prepare_local_storage()
+    except TaskerLayoutError as exc:
+        console.print(f"[yellow]{exc}[/yellow]")
+        raise typer.Exit(code=1) from exc
+
+    try:
+        session = Session(engine)
+        try:
+            tasks = TaskRepository(session)
+            rows = tasks.list_all()
+            if not rows:
+                console.print("[dim]No tasks.[/dim]")
+                return
+            table = Table(title="Tasks")
+            table.add_column("id", justify="right", style="cyan")
+            table.add_column("status")
+            table.add_column("project_id")
+            table.add_column("title")
+            table.add_column("updated", style="dim")
+            for t in rows:
+                table.add_row(
+                    str(t.id),
+                    t.status.value,
+                    t.project_id or "—",
+                    t.title,
+                    format_dt(t.updated_at),
+                )
+            console.print(table)
+        finally:
+            session.close()
+    finally:
+        engine.dispose()
+
+
+def show_task(
+    task_id: Annotated[int, typer.Argument(help="Task id.")],
 ) -> None:
-    """Show one task or a summary list of all tasks."""
+    """Show one task and its linked message references."""
     try:
         _, _, engine = prepare_local_storage()
     except TaskerLayoutError as exc:
@@ -93,28 +127,6 @@ def view(
         try:
             tasks = TaskRepository(session)
             refs = MessageRefRepository(session)
-            if task_id is None:
-                rows = tasks.list_all()
-                if not rows:
-                    console.print("[dim]No tasks.[/dim]")
-                    return
-                table = Table(title="Tasks")
-                table.add_column("id", justify="right", style="cyan")
-                table.add_column("status")
-                table.add_column("project_id")
-                table.add_column("title")
-                table.add_column("updated", style="dim")
-                for t in rows:
-                    table.add_row(
-                        str(t.id),
-                        t.status.value,
-                        t.project_id or "—",
-                        t.title,
-                        format_dt(t.updated_at),
-                    )
-                console.print(table)
-                return
-
             task = tasks.get(task_id)
             if task is None:
                 console.print(f"[red]No task with id {task_id}.[/red]")
@@ -207,7 +219,7 @@ def edit(
     )
 
 
-def remove_task(
+def delete_task(
     task_id: Annotated[int, typer.Argument(help="Task id.")],
     yes: Annotated[
         bool,

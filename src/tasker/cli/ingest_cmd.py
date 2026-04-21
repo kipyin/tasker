@@ -1,4 +1,4 @@
-"""`tasker ingest` command."""
+"""`tasker mail ingest` command."""
 
 from __future__ import annotations
 
@@ -45,7 +45,8 @@ def ingest(
             tasks = TaskRepository(session)
             refs = MessageRefRepository(session)
             task, ref = ingest_msg_path(path=path, tasks=tasks, refs=refs)
-            # Second commit in `refs.create` expires ORM instances; refresh before session closes.
+            # Second commit in `refs.create` expires ORM instances; refresh before
+            # session closes.
             session.refresh(task)
             session.refresh(ref)
         except MsgIngestError as exc:

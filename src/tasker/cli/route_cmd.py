@@ -1,4 +1,4 @@
-"""`tasker route-attachments` command."""
+"""`tasker mail save-attachments` command."""
 
 from __future__ import annotations
 
