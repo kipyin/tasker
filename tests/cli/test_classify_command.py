@@ -64,7 +64,7 @@ def test_classify_cli_dry_run_runs_without_questionary(
 
     runner = CliRunner()
     with patch(
-        "tasker.cli.classify_cmd.request_classification_proposal",
+        "tasker.cli.classify_flow.request_classification_proposal",
         side_effect=fake_proposal,
     ):
         result = runner.invoke(

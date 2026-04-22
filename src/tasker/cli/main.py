@@ -20,6 +20,7 @@ from tasker.cli.legacy_cmd import (
     route_attachments_legacy,
     view_legacy,
 )
+from tasker.cli.mail_inbox_workflow_cmd import mail_inbox_workflow
 from tasker.cli.outlook_cmd import outlook_recent
 from tasker.cli.project_cmd import project_app
 from tasker.cli.route_cmd import route_attachments
@@ -50,6 +51,7 @@ mail_app.command("ingest-outlook")(ingest_outlook)
 mail_app.command("classify")(classify_task)
 mail_app.command("save-attachments")(route_attachments)
 mail_app.command("outlook-recent")(outlook_recent)
+mail_app.command("inbox-workflow")(mail_inbox_workflow)
 
 
 @app.callback(invoke_without_command=True)
