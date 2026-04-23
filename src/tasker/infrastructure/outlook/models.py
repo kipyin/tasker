@@ -15,3 +15,4 @@ class InboxMessageSummary:
     received: datetime
     sender_display: str
     unread: bool
+    store_id: str | None = None

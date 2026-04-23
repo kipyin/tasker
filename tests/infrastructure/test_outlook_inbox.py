@@ -9,6 +9,7 @@ import pytest
 
 from tasker.domain.exceptions import OutlookNotAvailableError
 from tasker.infrastructure.outlook import InboxMessageSummary, list_recent_inbox
+from tasker.infrastructure.outlook.inbox import get_inbox_message_at_index
 
 
 def test_list_recent_inbox_limit_validation() -> None:
@@ -44,3 +45,19 @@ def test_list_recent_inbox_fetcher_override() -> None:
     assert len(rows) == 1
     assert rows[0].subject == "Hello"
     assert rows[0].unread is True
+
+
+def test_get_inbox_message_at_index() -> None:
+    dt = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+    a = InboxMessageSummary("a", "s1", dt, "x", True)
+    b = InboxMessageSummary("b", "s2", dt, "y", False)
+
+    def fetch(limit: int) -> list[InboxMessageSummary]:
+        return [a, b][:limit]
+
+    assert get_inbox_message_at_index(1, limit=5, _fetch_recent=fetch) is a
+    assert get_inbox_message_at_index(2, limit=5, _fetch_recent=fetch) is b
+    with pytest.raises(ValueError, match="index must be between"):
+        get_inbox_message_at_index(0, limit=5, _fetch_recent=fetch)
+    with pytest.raises(ValueError, match="index must be between"):
+        get_inbox_message_at_index(3, limit=2, _fetch_recent=fetch)

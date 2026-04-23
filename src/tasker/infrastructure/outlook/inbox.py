@@ -42,3 +42,26 @@ def list_recent_inbox(
             f"pywin32 is required for Outlook COM. {_OUTLOOK_EXTRA_HINT}",
         ) from exc
     return mod.fetch_recent_inbox(limit)
+
+
+def get_inbox_message_at_index(
+    one_based_index: int,
+    *,
+    limit: int,
+    _fetch_recent: Callable[[int], list[InboxMessageSummary]] | None = None,
+) -> InboxMessageSummary:
+    """
+    Return the message at ``one_based_index`` (1 = most recent).
+
+    Uses the same ordering as :func:`list_recent_inbox` with the given ``limit``.
+    ``_fetch_recent`` is for tests; production leaves it ``None``.
+    """
+    messages = list_recent_inbox(limit, _fetch_recent=_fetch_recent)
+    if one_based_index < 1 or one_based_index > len(messages):
+        hi = len(messages)
+        msg = (
+            f"index must be between 1 and {hi} "
+            f"(there are {hi} message(s) for this --limit)"
+        )
+        raise ValueError(msg)
+    return messages[one_based_index - 1]

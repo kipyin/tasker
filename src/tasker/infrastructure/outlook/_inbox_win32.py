@@ -50,6 +50,16 @@ def _bool_prop(item: Any, name: str, default: bool = False) -> bool:
     return bool(raw)
 
 
+def _store_id_for_item(item: Any) -> str | None:
+    try:
+        parent = item.Parent
+        store = parent.Store
+        sid = _str_prop(store, "StoreID", "")
+    except pywintypes.com_error:
+        return None
+    return sid or None
+
+
 def fetch_recent_inbox(limit: int) -> list[InboxMessageSummary]:
     """Load up to ``limit`` most recent mail items from the default Inbox."""
     try:
@@ -79,6 +89,7 @@ def fetch_recent_inbox(limit: int) -> list[InboxMessageSummary]:
             received = _received_to_datetime(received_raw)
             sender_display = _str_prop(item, "SenderName")
             unread = _bool_prop(item, "UnRead")
+            store_id = _store_id_for_item(item)
         except pywintypes.com_error:
             continue
         result.append(
@@ -88,6 +99,7 @@ def fetch_recent_inbox(limit: int) -> list[InboxMessageSummary]:
                 received=received,
                 sender_display=sender_display,
                 unread=unread,
+                store_id=store_id,
             ),
         )
     return result
