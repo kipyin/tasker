@@ -21,6 +21,15 @@ from tasker.cli.legacy_cmd import (
     view_legacy,
 )
 from tasker.cli.mail_inbox_workflow_cmd import mail_inbox_workflow
+from tasker.cli.mail_subcommands import (
+    mail_archive,
+    mail_capture,
+    mail_categories,
+    mail_delete,
+    mail_flag,
+    mail_inbox,
+    mail_read,
+)
 from tasker.cli.outlook_cmd import outlook_recent
 from tasker.cli.project_cmd import project_app
 from tasker.cli.route_cmd import route_attachments
@@ -47,11 +56,18 @@ task_app.command("edit")(edit)
 task_app.command("delete")(delete_task)
 
 mail_app.command("ingest")(ingest)
-mail_app.command("ingest-outlook")(ingest_outlook)
+mail_app.command("capture")(mail_capture)
+mail_app.command("inbox")(mail_inbox)
+mail_app.command("read")(mail_read)
+mail_app.command("flag")(mail_flag)
+mail_app.command("categories")(mail_categories)
+mail_app.command("archive")(mail_archive)
+mail_app.command("delete")(mail_delete)
 mail_app.command("classify")(classify_task)
 mail_app.command("save-attachments")(route_attachments)
-mail_app.command("outlook-recent")(outlook_recent)
 mail_app.command("inbox-workflow")(mail_inbox_workflow)
+mail_app.command("ingest-outlook", hidden=True)(ingest_outlook)
+mail_app.command("outlook-recent", hidden=True)(outlook_recent)
 
 
 @app.callback(invoke_without_command=True)

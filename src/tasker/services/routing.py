@@ -134,7 +134,7 @@ def _load_task_ref(
     if not ref_list:
         msg = (
             f"Task {task_id} has no linked message; run `tasker mail ingest` "
-            "or `tasker mail ingest-outlook` first."
+            "or `tasker mail capture` first."
         )
         raise RoutingError(msg)
     if not (task.project_id or "").strip():

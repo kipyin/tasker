@@ -90,7 +90,7 @@ def check_outlook_com_optional() -> list[Check]:
                 CheckSeverity.WARN,
                 "outlook_com_optional",
                 "Outlook COM (optional)",
-                "Install pywin32 for `tasker mail outlook-recent`: "
+                "Install pywin32 for `tasker mail inbox` and related commands: "
                 "pip install tasker[outlook]",
             ),
         ]

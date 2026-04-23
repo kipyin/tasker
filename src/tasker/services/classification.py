@@ -215,7 +215,7 @@ def load_task_primary_ref(
     if not ref_list:
         msg = (
             f"Task {task_id} has no linked message; run `tasker mail ingest` "
-            "or `tasker mail ingest-outlook` first."
+            "or `tasker mail capture` first."
         )
         raise ClassificationError(msg)
     return task, ref_list[0]

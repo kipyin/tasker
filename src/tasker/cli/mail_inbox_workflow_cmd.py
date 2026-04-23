@@ -30,7 +30,7 @@ def mail_inbox_workflow(
         int,
         typer.Option(
             "--limit",
-            help="Recent Inbox messages to show (1–200, same order as outlook-recent).",
+            help="Recent Inbox messages to show (1–200, same order as `mail inbox`).",
         ),
     ] = 20,
     dry_run: Annotated[
@@ -52,8 +52,8 @@ def mail_inbox_workflow(
     """
     Pick a recent Inbox message, create a pending task, then run AI classification.
 
-    Uses the same recent-Inbox ordering as ``tasker mail outlook-recent``. Entry IDs
-    are resolved internally after you choose a row.
+    Uses the same recent-Inbox ordering as ``tasker mail inbox``. Row resolution is
+    internal after you pick a message.
     """
     try:
         messages = list_recent_inbox(limit)

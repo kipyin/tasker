@@ -34,6 +34,6 @@ def classify_task(
     Propose a project via the configured BYOK model; confirm before any DB update.
 
     Requires a linked message (from `tasker mail ingest` or
-    `tasker mail ingest-outlook`) and at least one project in config.
+    `tasker mail capture`) and at least one project in config.
     """
     run_classification_for_task(task_id, dry_run=dry_run, yes=yes)
